@@ -2,6 +2,8 @@ import { View, Text, Image} from 'react-native'
 import React from 'react'
 import { Tabs, Redirect } from 'expo-router'
 import { icons } from '../../constants'
+import { StatusBar } from "expo-status-bar";
+import * as NavigationBar from "expo-navigation-bar";
 
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
@@ -21,18 +23,22 @@ const TabIcon = ({ icon, color, name, focused }) => {
 
 
 const TabsLayout = () => {
+
+  NavigationBar.setBackgroundColorAsync("#161622");
+  NavigationBar.setButtonStyleAsync("dark");
+
   return (
     <>
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
-          tabBarActiveTintColor: '#FFA001',
-          tabBarInactiveTintColor: '#CDCDE0',
+          tabBarActiveTintColor: "#FFA001",
+          tabBarInactiveTintColor: "#CDCDE0",
           tabBarStyle: {
             height: 65,
-            backgroundColor: '#161622',
+            backgroundColor: "#161622",
             borderTopWidth: 1,
-            borderTopColor: '#232533',
+            borderTopColor: "#232533",
           },
         }}
       >
@@ -100,6 +106,7 @@ const TabsLayout = () => {
           }}
         />
       </Tabs>
+      <StatusBar backgroundColor="#161622" style="light" />
     </>
   );
 }
