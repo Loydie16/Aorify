@@ -7,6 +7,7 @@ import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
 import { createUser } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
+import Toast from "react-native-toast-message";
 
 
 const SignUp = () => {
@@ -21,7 +22,11 @@ const SignUp = () => {
 
   const submit = async () => {
     if(!form.username || !form.email || !form.password) {
-      Alert.alert('Error','Please fill in all the fields')
+      Toast.show({
+        type: "error",
+        text1: "All Fields are Required!",
+        text2: "Please fill in all the fields.",
+      });
     }
 
     setIsSubmitting(true);
@@ -32,10 +37,51 @@ const SignUp = () => {
       setUser(result);
       setIsLoggedIn(true);
 
+      Toast.show({
+        type: "success",
+        text1: "Account Created.",
+        text2: "Successfully created account!",
+        position: "bottom",
+      });
+
       router.replace('/home');
 
     } catch (error) {
-      Alert.alert('Error',error.message)
+      if (
+        error.message ===
+        "AppwriteException: Rate limit for the current endpoint has been exceeded. Please try again after some time."
+      ) {
+        Toast.show({
+          type: "error",
+          text1: "Rate limit exceeded for this endpoint.",
+          text2: "Please try again after some time.",
+        });
+      } else if (
+        error.message ===
+        "AppwriteException: Invalid `email` param: Value must be a valid email address"
+      ) {
+        Toast.show({
+          type: "error",
+          text1: "Invalid Email Address.",
+          text2: "Please input a valid email address.",
+        });
+      } else if (
+        error.message ===
+        "AppwriteException: Invalid `password` param: Password must be between 8 and 265 characters long, and should not be one of the commonly used password."
+      ) {
+        Toast.show({
+          type: "error",
+          text1: "Invalid Password.",
+          text2: "Password must be 8-265 characters and not commonly used.",
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error occurred.",
+          text2: "Please try again!",
+        });
+        Alert.alert("Error", error.message);
+      }
     } finally {
       setIsSubmitting(false)
     }

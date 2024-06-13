@@ -7,6 +7,7 @@ import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
 import { getCurrentUser, signIn } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
+import Toast from "react-native-toast-message";
 
 const SignIn = () => {
   const [form, setForm] = useState({
@@ -19,7 +20,11 @@ const SignIn = () => {
 
   const submit = async () => {
     if (!form.email || !form.password) {
-      Alert.alert("Error", "Please fill in all the fields");
+      Toast.show({
+        type: "error",
+        text1: "All Fields are Required!",
+        text2: "Please fill in all the fields.",
+      });
     }
 
     setIsSubmitting(true);
@@ -31,11 +36,50 @@ const SignIn = () => {
       setUser(result);
       setIsLoggedIn(true);
 
-      Alert.alert("Success", "User signed in successfully!");
+      Toast.show({
+        type: "success",
+        text1: "Authenticated!",
+        text2: "Successfully signed in!",
+        position: "bottom",
+      });
 
       router.replace("/home");
     } catch (error) {
-      Alert.alert("Error", error.message);
+      if (
+        error.message ===
+        "AppwriteException: Rate limit for the current endpoint has been exceeded. Please try again after some time."
+      ) {
+        Toast.show({
+          type: "error",
+          text1: "Rate limit exceeded for this endpoint.",
+          text2: "Please try again after some time.",
+        });
+      } else if (
+        error.message ===
+        "AppwriteException: Invalid `email` param: Value must be a valid email address"
+      ) {
+        Toast.show({
+          type: "error",
+          text1: "Invalid Email Address.",
+          text2: "Please input a valid email address.",
+        });
+      } else if (
+        error.message ===
+        "AppwriteException: Invalid credentials. Please check the email and password."
+      ) {
+        Toast.show({
+          type: "error",
+          text1: "Invalid Credentials.",
+          text2: "Please check your email and password and try again.",
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error occurred.",
+          text2: "Please try again!",
+        });
+        Alert.alert("Error", error.message);
+      }
     } finally {
       setIsSubmitting(false);
     }

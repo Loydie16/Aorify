@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Slot, Stack, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 import GlobalProvider from "../context/GlobalProvider";
+import Toast from "react-native-toast-message";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -39,6 +40,7 @@ const RootLayout = () => {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="search/[query]" options={{ headerShown: false }} />
       </Stack>
+      <Toast />
     </GlobalProvider>
   );
 };

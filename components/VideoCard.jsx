@@ -2,6 +2,7 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { icons } from "../constants";
 import { Video, ResizeMode } from "expo-av";
+import Popover, { PopoverPlacement } from "react-native-popover-view";
 
 const VideoCard = ({ title, creator, avatar, thumbnail, video }) => {
   const [play, setPlay] = useState(false);
@@ -34,7 +35,38 @@ const VideoCard = ({ title, creator, avatar, thumbnail, video }) => {
         </View>
 
         <View className="pt-2">
-          <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
+          <Popover
+            onCloseComplete={() => this.close}
+            offset={-25}
+            popoverStyle={{ borderRadius: 10, backgroundColor: "#1E1E2D" }}
+            placement={PopoverPlacement.BOTTOM}
+            from={
+              <TouchableOpacity>
+                <Image
+                  source={icons.menu}
+                  className="w-5 h-5"
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            }
+          >
+            <TouchableOpacity className="px-6 py-2 flex-row gap-2 justify-start items-center">
+              <Image
+                source={icons.bookmark}
+                className="w-5 h-5 "
+                resizeMode="contain"
+              />
+              <Text className="text-white font-pregular text-lg">Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity className="px-6 py-2 flex-row gap-2 justify-start items-center">
+              <Image
+                source={icons.Delete}
+                className="w-5 h-5"
+                resizeMode="contain"
+              />
+              <Text className="text-white font-pregular text-lg">Delete</Text>
+            </TouchableOpacity>
+          </Popover>
         </View>
       </View>
 

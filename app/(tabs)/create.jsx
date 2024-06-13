@@ -16,6 +16,7 @@ import { router } from "expo-router";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { icons } from "../../constants";
 import { createVideo } from "../../lib/appwrite";
+import Toast from "react-native-toast-message";
 
 const Create = () => {
   const { user } = useGlobalContext();
@@ -56,7 +57,11 @@ const Create = () => {
        !form.thumbnail |
        !form.video
      ) {
-       return Alert.alert("Please provide all fields");
+       return Toast.show({
+         type: "error",
+         text1: "All Fields are Required!",
+         text2: "Please fill in all the fields.",
+       });
      }
 
     setUploading(true);
@@ -66,7 +71,11 @@ const Create = () => {
         ...form,
         userId: user.$id,
       });
-      Alert.alert("Success", "Post uploded successfully");
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Post Successfully Added!",
+      });
       router.push("/home");
     } catch (error) {
       Alert.alert("Error", error.message);
@@ -99,7 +108,10 @@ const Create = () => {
           <Text className="text-base text-gray-100 font-pmedium">
             Upload Video (50 MB Only)
           </Text>
-          <TouchableOpacity onPress={() => openPicker("video")}>
+          <TouchableOpacity
+            onPress={() => openPicker("video")}
+            disabled={!uploading}
+          >
             {form.video ? (
               <Video
                 source={{ uri: form.video.uri }}
@@ -125,7 +137,10 @@ const Create = () => {
             Thumbnail Image
           </Text>
 
-          <TouchableOpacity onPress={() => openPicker("image")}>
+          <TouchableOpacity
+            onPress={() => openPicker("image")}
+            disabled={!uploading}
+          >
             {form.thumbnail ? (
               <Image
                 source={{ uri: form.thumbnail.uri }}

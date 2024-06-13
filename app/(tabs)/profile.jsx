@@ -1,5 +1,12 @@
-import { View, FlatList, TouchableOpacity, Image } from "react-native";
-import React from "react";
+import {
+  View,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  RefreshControl,
+  Text,
+} from "react-native";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EmptyState from "../../components/EmptyState";
 import { getUserPosts, signOut } from "../../lib/appwrite";
@@ -8,18 +15,26 @@ import VideoCard from "../../components/VideoCard";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { icons } from "../../constants";
 import InfoBox from "../../components/InfoBox";
-import { router } from "expo-router"
+import { router } from "expo-router";
+import Popover, { PopoverPlacement } from "react-native-popover-view";
 
 const Profile = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
   const { data: posts, refetch } = useAppwrite(() => getUserPosts(user.$id));
 
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
+
   const logout = async () => {
     await signOut();
     setUser(null);
     setIsLoggedIn(false);
-    
-    router.replace('/sign-in')
+
+    router.replace("/sign-in");
   };
 
   return (
@@ -37,17 +52,31 @@ const Profile = () => {
           />
         )}
         ListHeaderComponent={() => (
-          <View className="w-full justify-center items-center mt-6 mb-12 px-4">
-            <TouchableOpacity
-              className="w-full items-end mb-10"
-              onPress={logout}
+          <View className="w-full justify-center items-center mt-6 mb-12 px-4  ">
+            <Popover
+              onCloseComplete={() => this.close}
+              offset={-25}
+              popoverStyle={{ borderRadius: 10, backgroundColor: "#1E1E2D" }}
+              placement={PopoverPlacement.BOTTOM}
+              from={
+                <TouchableOpacity className="self-end items-end">
+                  <Image
+                    source={icons.logout}
+                    resizeMode="contain"
+                    className="w-6 h-6"
+                  />
+                </TouchableOpacity>
+              }
             >
-              <Image
-                source={icons.logout}
-                resizeMode="contain"
-                className="w-6 h-6"
-              />
-            </TouchableOpacity>
+              <TouchableOpacity className="px-6 py-2 flex-row gap-2 justify-start items-center"  onPress={logout}>
+                <Image
+                  source={icons.logout}
+                  className="w-5 h-5"
+                  resizeMode="contain"
+                />
+                <Text className="text-white font-pregular text-lg">Logout</Text>
+              </TouchableOpacity>
+            </Popover>
 
             <View className="h-16 w-16 border border-secondary rounded-lg justify-center items-center">
               <Image
@@ -81,9 +110,12 @@ const Profile = () => {
         ListEmptyComponent={() => (
           <EmptyState
             title="No Videos Found"
-            subtitle="No videos found for this search"
+            subtitle="You don't have any videos uploaded"
           />
         )}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </SafeAreaView>
   );
