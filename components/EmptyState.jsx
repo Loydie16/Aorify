@@ -41,6 +41,7 @@ const EmptyState = ({ title, subtitle }) => {
               fontSize: 14,
               color: "#bbb",
               marginTop: 8,
+              textAlign: "center"
             }}
           >
             {subtitle}

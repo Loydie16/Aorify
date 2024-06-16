@@ -5,6 +5,7 @@ import {
   Image,
   RefreshControl,
   Text,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,11 +18,11 @@ import { icons } from "../../constants";
 import InfoBox from "../../components/InfoBox";
 import { router } from "expo-router";
 import Popover, { PopoverPlacement } from "react-native-popover-view";
+import Toast from "react-native-toast-message";
 
 const Profile = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
   const { data: posts, refetch } = useAppwrite(() => getUserPosts(user.$id));
-
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = async () => {
     setRefreshing(true);
@@ -30,11 +31,27 @@ const Profile = () => {
   };
 
   const logout = async () => {
-    await signOut();
-    setUser(null);
-    setIsLoggedIn(false);
+    try {
+      await signOut();
+      setUser(null);
+      setIsLoggedIn(false);
 
-    router.replace("/sign-in");
+      Toast.show({
+        type: "success",
+        text1: "Logout!",
+        text2: "Logout Successfully!",
+      });
+
+      setTimeout(() => {
+        router.replace("/sign-in");
+      }, 1000);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.message,
+      });
+    } 
   };
 
   return (
@@ -48,32 +65,43 @@ const Profile = () => {
             thumbnail={item.thumbnail}
             video={item.video}
             creator={item.creator.username}
+            creatorId={item.creator.$id}
             avatar={item.creator.avatar}
+            docId={item.$id}
+            onRefresh={onRefresh}
           />
         )}
         ListHeaderComponent={() => (
-          <View className="w-full justify-center items-center mt-6 mb-12 px-4  ">
+          <View className="w-full justify-center items-center mt-6 mb-12 px-4">
             <Popover
               onCloseComplete={() => this.close}
-              offset={-25}
+              animationConfig={{
+                duration: 70,
+                useNativeDriver: false,
+              }}
+              offset={-40}
               popoverStyle={{ borderRadius: 10, backgroundColor: "#1E1E2D" }}
               placement={PopoverPlacement.BOTTOM}
               from={
-                <TouchableOpacity className="self-end items-end">
+                <TouchableOpacity className="justify-end self-end">
                   <Image
                     source={icons.logout}
-                    resizeMode="contain"
                     className="w-6 h-6"
+                    resizeMode="contain"
                   />
                 </TouchableOpacity>
               }
             >
-              <TouchableOpacity className="px-6 py-2 flex-row gap-2 justify-start items-center"  onPress={logout}>
+              <TouchableOpacity
+                className="px-6 py-2 flex-row gap-2 justify-start items-center"
+                onPress={logout}
+              >
                 <Image
                   source={icons.logout}
                   className="w-5 h-5"
                   resizeMode="contain"
                 />
+
                 <Text className="text-white font-pregular text-lg">Logout</Text>
               </TouchableOpacity>
             </Popover>
@@ -92,16 +120,10 @@ const Profile = () => {
               titleStyles="text-lg"
             />
 
-            <View className="mt-5 flex-row">
+            <View className="mt-5">
               <InfoBox
                 title={posts.length || 0}
                 subtitle="Posts"
-                containerStyles="mr-10"
-                titleStyles="text-xl"
-              />
-              <InfoBox
-                title="1.2k"
-                subtitle="Followers"
                 titleStyles="text-xl"
               />
             </View>

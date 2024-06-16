@@ -24,6 +24,8 @@ const Home = () => {
     setRefreshing(false);
   };
 
+  //console.log(posts)
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
@@ -35,7 +37,10 @@ const Home = () => {
             thumbnail={item.thumbnail}
             video={item.video}
             creator={item.creator.username}
+            creatorId={item.creator.$id}
             avatar={item.creator.avatar}
+            docId={item.$id}
+            onRefresh={onRefresh}
           />
         )}
         ListHeaderComponent={() => (

@@ -1,6 +1,6 @@
 import { View, Text, Image} from 'react-native'
 import React from 'react'
-import { Tabs, Redirect } from 'expo-router'
+import { Tabs } from 'expo-router'
 import { icons } from '../../constants'
 import { StatusBar } from "expo-status-bar";
 import * as NavigationBar from "expo-navigation-bar";
@@ -67,10 +67,11 @@ const TabsLayout = () => {
               <TabIcon
                 icon={icons.bookmark}
                 color={color}
-                name="Bookmark"
+                name="Saved"
                 focused={focused}
               />
             ),
+            //unmountOnBlur: true,
           }}
         />
 

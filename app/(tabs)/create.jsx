@@ -102,6 +102,7 @@ const Create = () => {
           placeholder="Give your video a catch title..."
           handleChangeText={(e) => setForm({ ...form, title: e })}
           otherStyles="mt-10"
+          editable={!uploading}
         />
 
         <View className="mt-10 space-y-2">
@@ -110,7 +111,7 @@ const Create = () => {
           </Text>
           <TouchableOpacity
             onPress={() => openPicker("video")}
-            disabled={!uploading}
+            disabled={uploading}
           >
             {form.video ? (
               <Video
@@ -139,7 +140,7 @@ const Create = () => {
 
           <TouchableOpacity
             onPress={() => openPicker("image")}
-            disabled={!uploading}
+            disabled={uploading}
           >
             {form.thumbnail ? (
               <Image
@@ -168,6 +169,7 @@ const Create = () => {
           placeholder="Prompt used to create the video"
           handleChangeText={(e) => setForm({ ...form, prompt: e })}
           otherStyles="mt-7"
+          editable={!uploading}
         />
 
         <CustomButton
