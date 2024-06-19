@@ -71,7 +71,7 @@ const TabsLayout = () => {
                 focused={focused}
               />
             ),
-            //unmountOnBlur: true,
+            unmountOnBlur: true,
           }}
         />
 

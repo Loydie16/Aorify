@@ -5,7 +5,6 @@ import {
   Image,
   RefreshControl,
   Text,
-  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,13 +16,21 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import { icons } from "../../constants";
 import InfoBox from "../../components/InfoBox";
 import { router } from "expo-router";
-import Popover, { PopoverPlacement } from "react-native-popover-view";
+import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
+import CustomButton from "../../components/CustomButton";
 
 const Profile = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
   const { data: posts, refetch } = useAppwrite(() => getUserPosts(user.$id));
   const [refreshing, setRefreshing] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await refetch();
@@ -32,6 +39,7 @@ const Profile = () => {
 
   const logout = async () => {
     try {
+      setLoading(true);
       await signOut();
       setUser(null);
       setIsLoggedIn(false);
@@ -42,16 +50,16 @@ const Profile = () => {
         text2: "Logout Successfully!",
       });
 
-      setTimeout(() => {
-        router.replace("/sign-in");
-      }, 1000);
+      router.replace("/sign-in");
     } catch (error) {
       Toast.show({
         type: "error",
         text1: "Error",
         text2: error.message,
       });
-    } 
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -73,38 +81,16 @@ const Profile = () => {
         )}
         ListHeaderComponent={() => (
           <View className="w-full justify-center items-center mt-6 mb-12 px-4">
-            <Popover
-              onCloseComplete={() => this.close}
-              animationConfig={{
-                duration: 70,
-                useNativeDriver: false,
-              }}
-              offset={-40}
-              popoverStyle={{ borderRadius: 10, backgroundColor: "#1E1E2D" }}
-              placement={PopoverPlacement.BOTTOM}
-              from={
-                <TouchableOpacity className="justify-end self-end">
-                  <Image
-                    source={icons.logout}
-                    className="w-6 h-6"
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
-              }
+            <TouchableOpacity
+              className="justify-end self-end onPress={logout}"
+              onPress={toggleModal}
             >
-              <TouchableOpacity
-                className="px-6 py-2 flex-row gap-2 justify-start items-center"
-                onPress={logout}
-              >
-                <Image
-                  source={icons.logout}
-                  className="w-5 h-5"
-                  resizeMode="contain"
-                />
-
-                <Text className="text-white font-pregular text-lg">Logout</Text>
-              </TouchableOpacity>
-            </Popover>
+              <Image
+                source={icons.logout}
+                className="w-6 h-6"
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
 
             <View className="h-16 w-16 border border-secondary rounded-lg justify-center items-center">
               <Image
@@ -139,6 +125,33 @@ const Profile = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
+      <Modal
+        isVisible={isModalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+        animationIn={"fadeInUp"}
+        animationInTiming={500}
+      >
+        <View className="flex justify-center items-center bg-slate-300 h-[25%] rounded-xl">
+          <Text className="text-black font-psemibold text-xl text-center p-4">
+            Are you sure you want to logout?
+          </Text>
+          <View className="flex flex-row w-full justify-evenly">
+            <CustomButton
+              containerStyles="px-10 text"
+              textStyles="text-red-600"
+              title="Yes"
+              handlePress={logout}
+              isLoading={loading}
+            />
+            <CustomButton
+              containerStyles="px-10"
+              textStyles="text-green-600"
+              title="No"
+              handlePress={toggleModal}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
